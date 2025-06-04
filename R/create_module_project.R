@@ -1,0 +1,160 @@
+#' Create a new RStudio project prepared for SIA modules
+#'
+#' @description
+#' The function is designed to be used primarily by RStudio "New Project
+#' Wizard". Create a new project by navigating through File > New Project > New
+#' Directory > ShinyItemAnalysis Module Project. See [RStudio User
+#' Guide](https://docs.posit.co/ide/user/ide/guide/productivity/project-templates.html)
+#' for the details.
+#'
+#' @param path *character*, a path to the new module. Use `"../my_new_module"`
+#'   to create a module in the parent of the current working directory.
+#' @param ... *used by RStudio only*
+#' @param open *logical*, whether to open the project in new RStudio session
+#' after creation. Defaults to `TRUE`.
+#'
+#' @importFrom fs file_copy
+#' @importFrom cli cli_alert_info
+#' @importFrom usethis create_package local_project proj_activate ui_nope
+#'   use_tidy_description use_testthat use_package_doc use_package
+#'   use_readme_rmd
+#'
+#' @return No return value. Called for the side effect.
+#' @export
+#'
+#' @family project_templates
+#'
+#' @examples
+#' if (interactive()) {
+#'   # create a new SIA module project in the parent of your working directory
+#'   create_module_project("../my_new_module")
+#' }
+create_module_project <- function(path, ..., open = TRUE) {
+  path <- create_package(
+    path,
+    fields = as.list(description_field), # so the module is recognized by SIA app
+    roxygen = TRUE, check_name = FALSE, open = FALSE
+  )
+
+  local_project(path, quiet = TRUE)
+
+  use_tidy_description()
+
+  use_package_doc(open = FALSE)
+
+  use_readme_rmd(open = FALSE)
+
+  # copy special sitatools .Rprofile that ensures a welcome_routine() is run
+  # IN THE NEW PROJECT for the first time and only for the first time
+  # see https://docs.posit.co/ide/server-pro/rstudio_pro_sessions/session_startup_scripts.html,
+  # R CMD Build during Check seems to deliberately ignore names such as
+  # [.]Rprofile, so rename during copying...
+  file_copy(
+    SIAtools_file("rstudio/templates/project/temp_rprofile.R"),
+    ".Rprofile",
+    overwrite = TRUE
+  )
+
+
+  # when called from RStudio project wizard and proj_activate() is called
+  # a new window opens up and the "caller project" changes as well
+  # in such case, prevent proj_activate()
+  outermost_frame_env_name <- environmentName(parent.env(sys.frame(1L)))
+  called_by_rstudio_wizard <- outermost_frame_env_name == "tools:rstudio"
+
+  if (isFALSE(called_by_rstudio_wizard) && open) {
+    if (is_rstudio_available() && is_rs_api_fun_available("openProject")) {
+      proj_activate(path)
+    } else {
+      # if open = TRUE and we are not in RStudio, we have to override the
+      # deferred setwd() issued by local_project(), proj_activate()
+      # is not able to do that in case of local_project() at play
+      on.exit(
+        {
+          cli_alert_info("Setting working directory to {.path {path}}...")
+          setwd(path)
+        },
+        add = TRUE
+      )
+    }
+  }
+}
+
+
+#' Do a welcome routine in the fresh SIA module project
+#'
+#' @keywords internal
+#' @importFrom cli cli_alert_success cli_ul cli_end cli_text cli_ol cli_par cli_h1 symbol
+#' @importFrom fs file_exists
+#'
+welcome_routine <- function() {
+  # some handy tips for the user
+
+  cli_h1("Done!")
+
+  cli_par()
+  cli_alert_success("Your new SIA module project was successfully initialized!")
+  cli_end()
+
+  cli_par()
+  cli_text("{.strong Here are some things to consider:}")
+  cli_ol(
+    c(
+      "Add your first SIA module with {.run SIAtools::add_module()}, add your code and preview the module using {.run SIAtools::preview_module()}.",
+      "Read the {.vignette SIAtools::getting_started} vignette to familiarize yourself with the basic workflow.",
+      paste(
+        "Review and edit your {.file DESCRIPTION} file. See {.href [the {.val DESCRIPTION} chapter](https://r-pkgs.org/description.html)}",
+        "from {.val R Packages} book for the details. We highly recommend to read the whole book and stick with the practices described therein."
+      ),
+      "Don't forget to edit and render your {.file README.Rmd} to let others know what your package (and the module or modules contained) is about.",
+      "Set up a version control system, e.g., with {.fun usethis::use_git} and {.fun usethis::use_github}."
+    )
+  )
+  cli_end()
+
+  cli_par()
+  cli_text("Happy coding!")
+  cli_end()
+
+  destroy_SIAtools_rprof()
+
+  # source user's .Rprofile if exists
+  user_rprof_path <- get_user_rprof()
+  if (file_exists(user_rprof_path)) {
+    source(user_rprof_path, local = FALSE)
+  }
+}
+
+
+#' @importFrom fs file_exists file_delete
+#'
+destroy_SIAtools_rprof <- function() {
+  # try to remove .Rprofile created by {SIAtools} to prevent further messages
+  # fallback if the .Rprofile was not made by {SIAtools} or does not exist
+
+  if (!fs::file_exists(".Rprofile")) {
+    return(invisible())
+  }
+
+  rprof_content <- readLines(".Rprofile")
+  rprof_by_SIAtools <- rprof_content[1L] == "# Generated by {SIAtools}"
+
+  if (rprof_by_SIAtools) {
+    invisible(file_delete(".Rprofile"))
+  }
+
+  invisible()
+}
+
+
+#' @importFrom fs path_home_r path
+get_user_rprof <- function() {
+  # use a path from ENV var if specified
+  env_rprof <- Sys.getenv("R_PROFILE")
+  if (nzchar(env_rprof)) {
+    return(path(env_rprof, ".Rprofile"))
+  }
+
+  # if not, use a standard location
+  path_home_r(".Rprofile")
+}

@@ -1,0 +1,5 @@
+Binding: create_module_project
+Title: ShinyItemAnalysis Module Project
+Subtitle: Create a new {ShinyItemAnalysis} module project.
+Caption: {ShinyItemAnalysis} module
+Icon: logo.png

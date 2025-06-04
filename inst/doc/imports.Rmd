@@ -1,0 +1,60 @@
+---
+title: "Communicating with ShinyItemAnalysis App"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Communicating with ShinyItemAnalysis App}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, eval = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+You might have already noticed that both the UI and server logic functions in the source code of your SIA module have a special `imports` argument. While being set to `NULL` by default, once your module package is installed and the SIA app is run[^1], the `imports` argument is actually populated with a multitude of objects that SIA app exports for your module. From the module's perspective, these form a list of imported objects, hence the name "imports". This vignette explains the nature of imports, how to use them in your module, and how to communicate with the app to get the most out of the module-app alliance that SIA modules offer.
+
+[^1]: Using `ShinyItemAnalysis::run_app()` function.
+
+## Objects imported from SIA
+
+Every single object defined in the SIA app that inherits from `reactive`, `reactiveVal` or `reactivevalues` is relayed to the `imports` list available from within the module's server function[^2].
+
+[^2]: Actually, UI function of a module possesses its `imports` as well, but the SIA app doesn't provide any yet, as we are currently unsure what to relay in an UI part.
+
+### `reactive`s and `reactiveVal`s
+
+To use reactives and single reactive values, you have to "call" them. There is no difference from usual `shiny` conventions.
+
+Refer to the source code of ShinyItemAnalysis app for the names of the objects and server logic context, and/or possibly use `browser()` from within your module's server function and inspect `imports` object by yourself[^3]. It is also possible to put `cat(names(imports), sep = "\n")` in your module's function to get the object names listed in your console. However, we recommend to stick with the former, as you can inspect the imports interactively from `R` console, save them, and then possibly reuse in preview mode[^4], keeping the development cycle short.
+
+[^3]: Note again you have to build and install your module package first and run it within the SIA app to see the imports.
+
+[^4]: However, you have to `shiny::isolate()` any reactive expression first to store the actual object in a regular non-reactive one. Then, you are expected to wrap the result in a simple function that returns the object, so it plays nicely with the module's code that works with reactive expressions in imports.
+
+### `input`s and `reactiveValues`
+
+All SIA's inputs are relayed to the same `imports` object described above. In your module, you'll find them in `imports$input`.
+
+For instance, to get the name of currently picked toy dataset in the app, you would use `imports$input$data_toydata` as your usual input.
+
+The idea is the same for `reactivevalues`, as `input` in fact inherits from `reactivevalues`. To use reactive values, you simply use them by their name, as you would do in ordinary `shiny` code.
+
+#### Advanced: Updating SIA's inputs
+
+In case you want to update input values living *outside* your module, it gets a bit trickier. You have to obtain the correct `session` object first, which is reliably done by subsetting the parent session from your module' current session. This code would set the toy dataset to "CZmaturaS":
+
+```{r}
+parent_session <- .subset2(session, "parent")
+
+updateSelectInput(
+  session = parent_session,
+  inputId = "data_toydata",
+  selected = "CZmaturaS_ShinyItemAnalysis"
+)
+```
+
+The chunk above would be placed in your regular `observer`, possibly bounded to some `actionButton` press or any other event with `bindEvent`. Note that if you use shiny modules inside a SIA module, you have to get the correct session object for SIA, which could possibly be "grandparent" or higher from your SIA module's module perspective.

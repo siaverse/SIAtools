@@ -1,0 +1,5 @@
+Name: Preview module defined in active file
+Description: Runs preview_module() on module ID derived from the name of the active file.
+Binding: preview_current_module
+Interactive: true
+

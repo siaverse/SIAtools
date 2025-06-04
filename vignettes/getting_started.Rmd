@@ -1,0 +1,54 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, eval = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+There are two scenarios:
+
+-   A: You want to create SIA modules, but don't have any `R` package at hand.
+-   B: You have an existing `R` package and want to add one or more SIA modules to it.
+
+### A: Create a Module Package
+
+An RStudio project template is shipped within `{SIAtools}`. In RStudio, navigate to File \> New Project \> New Directory \> ShinyItemAnalysis Module Project[^1]. Alternatively, you can achieve the same programmatically with:
+
+[^1]: See [RStudio User Guide](https://docs.posit.co/ide/user/ide/guide/productivity/project-templates.html) for the details.
+
+```{r}
+SIAtools::create_module_project("path/to/your/new/project")
+```
+
+Further instructions will pop up in the console of your new project. Then, just proceed with the steps delineated in scenario B:
+
+### B: Add Module(s) to Your Package
+
+To create a new SIA module in your existing package, simply call:
+
+```{r}
+SIAtools::add_module(name = "my_module")
+```
+
+`{SIAtools}` will then check your package, create a so-called SIA Module Manifest and generate the actual `.R` file with a pre-populated template code for your new module. SIA modules are in fact standard `{shiny}` modules, prepared to work like add-ons or extensions in the ShinyItemAnalysis interactive app, so you develop your module just like any other `{shiny}` app. If you are new to this, learn more at <https://shiny.posit.co/>.
+
+However, SIA modules are not standalone apps, so they are not directly runnable. That's why we've prepared an easy way to preview your in-development module without needing to install your package and testing it in the SIA app. Just run
+
+```{r}
+SIAtools::preview_module()
+```
+
+and check your progress iteratively. In RStudio, you can even use our SIAtools addin to preview the module whose source code file is currently open and active. You'll find it in [Addins menu](https://docs.posit.co/ide/user/ide/guide/productivity/add-ins.html) or in your [command palette](https://docs.posit.co/ide/user/ide/guide/ui/command-palette.html), which is especially handy. Keyboard shortcut is also available, see our `edit_rstudio_shortcuts()` function for details.
+
+For further information on some special cases you may encounter during the module development, please refer to other vignettes. If you plan to use any objects, such as data or fitted models from the SIA app, you might be especially interested in `vignette("imports", "SIAtools")`.
