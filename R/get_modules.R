@@ -96,10 +96,10 @@ print.sm_manifest <- function(x, ..., as_tibble = FALSE) {
       reason = "to print the SIA Module Manifest as a tibble. Use `as_tibble = FALSE` in `get_modules()` to print a plain YAML."
     )
 
-    out <- x %>%
-      unclass() %>%
-      tibble::enframe("module_id", "desc") %>%
-      tidyr::unnest_wider("desc") %>%
+    out <- x|>
+      unclass()|>
+      tibble::enframe("module_id", "desc")|>
+      tidyr::unnest_wider("desc")|>
       tidyr::unnest_wider("binding", names_sep = "_")
 
     print(out)

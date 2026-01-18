@@ -50,7 +50,7 @@ NULL
 #'
 sm_test_ui <- function(id, imports = NULL, ...) {
   ns <- NS(id) # shorthand for NS(id, <inputId>)
-  # Any `inputId` and `outputId` of {shiny} UI elements MUST be "wrapped" in
+  # Any `inputId` and `outputId` of {shiny} UI elements MUST be "wrapped" in a
   # `ns()` call! Use `SIAtools::lint_ns()` to check for possible omissions.
 
   tagList(

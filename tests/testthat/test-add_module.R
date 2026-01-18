@@ -12,7 +12,8 @@ test_that("adding module to non-package project with invalid DESCRIPTION fails",
 
   fs::file_create("DESCRIPTION")
 
-  expect_error(add_module(name = "test"),
+  expect_error(
+    add_module(name = "test"),
     regexp = "There was an error in reading the package name."
   )
 })
@@ -83,7 +84,8 @@ test_that("adding module with already used name fails", {
 
   add_module(name = "test")
 
-  expect_error(add_module(name = "test"),
+  expect_error(
+    add_module(name = "test"),
     regexp = "Module \"sm_test\" is already present"
   )
 })
@@ -94,13 +96,15 @@ test_that("adding a pre-specified module is silent about title and category edit
 
   expect_snapshot(add_module(name = "category_given", category = "Modules"))
   expect_snapshot(add_module(name = "title_given", title = "Test module"))
-  expect_snapshot(add_module(name = "both_given", title = "Test module", category = "Modules"))
-
+  expect_snapshot(add_module(
+    name = "both_given",
+    title = "Test module",
+    category = "Modules"
+  ))
 })
 
 test_that("adding a pre-specified module with wrong category fails", {
   pkg <- local_create_project(type = "module")
 
   expect_error(add_module(name = "test", category = "Wrong category"))
-
 })

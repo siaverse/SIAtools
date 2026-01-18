@@ -137,7 +137,7 @@ pick_module <- function(module_id = NULL, reason, proj = curr_proj()) {
     cli_abort("No modules available to {reason}.")
   }
 
-  mods_titles <- mods %>% map_chr("title")
+  mods_titles <- mods|> map_chr("title")
 
   if (!is.null(module_id)) {
     if (!is.character(module_id)) {

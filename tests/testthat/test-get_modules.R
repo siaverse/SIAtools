@@ -1,13 +1,17 @@
 test_that("NULL is returned in case of zero modules", {
   pkg <- local_create_project(type = "ordinary_package")
 
-  get_modules() %>%
-    expect_null() %>%
+  get_modules()|>
+    expect_null()|>
     expect_invisible()
 
-  get_modules() %>%
-    expect_message("This package doesn't declare that it contains any SIA modules") %>%
-    expect_message("Trying to obtain and read SIA Modules Manifest nevertheless") %>%
+  get_modules()|>
+    expect_message(
+      "This package doesn't declare that it contains any SIA modules"
+    )|>
+    expect_message(
+      "Trying to obtain and read SIA Modules Manifest nevertheless"
+    )|>
     expect_message("There is no SIA Modules Manifest")
 })
 
@@ -44,7 +48,6 @@ test_that("manifest is of correct structure and with expected values", {
 })
 
 
-
 test_that("edgecases are handled with correct messages", {
   pkg <- local_create_project(type = "ordinary_package")
   yaml_path <- get_yaml_path(pkg)
@@ -59,10 +62,9 @@ test_that("edgecases are handled with correct messages", {
   expect_message(get_modules(), regexp = "is corrupt")
 
   # in all cases, should return NULL invisibly
-  get_modules() %>%
-    expect_null() %>%
+  get_modules()|>
+    expect_null()|>
     expect_invisible()
-
 })
 
 
@@ -73,7 +75,7 @@ test_that("manifest prints out correctly", {
   expect_snapshot(get_modules())
 
   # tibble format
-  get_modules() %>%
-    print(as_tibble = TRUE) %>%
-    expect_snapshot_value(style = "deparse", cran = TRUE)
+  get_modules()|>
+    print(as_tibble = TRUE)|>
+    expect_snapshot_value(style = "deparse")
 })

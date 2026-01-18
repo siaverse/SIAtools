@@ -6,6 +6,7 @@
 > ‘ShinyItemAnalysis’ Modules Development Toolkit
 
 <!-- badges: start -->
+
 <!-- [![R-CMD-check](https://github.com/ApplStat/SIAtools/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ApplStat/SIAtools/actions/workflows/R-CMD-check.yaml) -->
 
 [![CRAN
@@ -29,11 +30,17 @@ Install the released version of SIAtools from CRAN with:
 install.packages("SIAtools")
 ```
 
-<!-- Or install the development version from GitHub with: -->
-<!-- ```{r} -->
-<!-- if (!require(remotes)) {install.packages("remotes")} -->
-<!-- remotes::install_github("ApplStat/SIAtools") -->
-<!-- ``` -->
+<div class="pkgdown-devel">
+
+Or you can install the development version from our CRAN-like repository
+with:
+
+    install.packages("SIAtools", repos = c(
+      "https://applstat.github.io/SIArepo/",
+      "https://cloud.r-project.org/"
+    ))
+
+</div>
 
 ## Usage
 

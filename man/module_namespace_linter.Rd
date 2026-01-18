@@ -100,7 +100,7 @@ in this linter.
 }
 }
 \examples{
-\dontshow{if (requireNamespace("lintr", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("lintr", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # will produce lints
 lintr::lint(
   text =

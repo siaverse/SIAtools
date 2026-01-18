@@ -108,7 +108,7 @@ add_module <- function(name = "new_module", title = NULL, category = NULL,
   new_yaml_content <- c(mod_list, new_mod)
 
   # write out the new YAML
-  new_yaml_content %>% write_yaml(yaml_path)
+  new_yaml_content|> write_yaml(yaml_path)
 
   # overwrite open arg if not interactive
   open <- if (!is_interactive()) FALSE else open

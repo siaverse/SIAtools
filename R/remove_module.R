@@ -31,7 +31,7 @@ remove_module <- function(module_id = NULL, proj = curr_proj()) {
   manifest <- read_yaml(yaml_path)
 
   manifest[curr_mod$id] <- NULL
-  manifest %>% write_yaml(yaml_path)
+  manifest|> write_yaml(yaml_path)
   cli_alert_success("Module {.field {curr_mod$id}} was removed from the manifest.")
 
   mod_path <- path(proj, "R", curr_mod$id, ext = "R")
